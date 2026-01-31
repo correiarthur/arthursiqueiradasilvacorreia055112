@@ -50,7 +50,7 @@ const itemVariants: Variants = {
 
 export function SecaoRecurso() {
   return (
-    <section id="recursos" className="py-24 px-4 bg-card">
+    <section id="recursos" className="py-24 px-4 bg-card select-none cursor-default">
       <div className="container mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

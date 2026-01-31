@@ -10,7 +10,7 @@ const beneficios = [
 
 export function SecaoSobre() {
   return (
-    <section id="sobre" className="pb-12 pt-5 px-4 bg-background">
+    <section id="sobre" className="pb-12 pt-5 px-4 bg-background select-none cursor-default">
       <div className="container mx-auto">
         <div className="flex flex-col items-center">
           {/* Visual Element */}

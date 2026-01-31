@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 
 export function SecaoHero() {
   return (
-    <section className="py-16 pt-32 flex items-center justify-center px-4">
+    <section className="py-16 pt-32 flex items-center justify-center px-4 select-none cursor-default">
       <div className="container mx-auto">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           {/* Content */}
