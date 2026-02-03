@@ -27,7 +27,6 @@ export function Cabecalho() {
           <span className="text-xl font-bold text-primary font-sans">Melhor Amigo</span>
         </Link>
 
-        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
           <Link to="#recursos" className="text-foreground hover:text-secondary transition-colors font-serif">
             Recursos
@@ -42,7 +41,6 @@ export function Cabecalho() {
           </Link>
         </div>
 
-        {/* Mobile Menu Button */}
         <Button
           variant="ghost"
           size="icon"
@@ -54,7 +52,6 @@ export function Cabecalho() {
         </Button>
       </nav>
 
-      {/* Mobile Menu */}
       {menuAberto && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}

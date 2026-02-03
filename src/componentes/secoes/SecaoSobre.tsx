@@ -13,7 +13,6 @@ export function SecaoSobre() {
     <section id="sobre" className="pb-12 pt-5 px-4 bg-background select-none cursor-default">
       <div className="container mx-auto">
         <div className="flex flex-col items-center">
-          {/* Visual Element */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -22,7 +21,6 @@ export function SecaoSobre() {
             className="flex-1"
           >
             <div className="relative">
-              {/* Decorative Elements */}
               <motion.div
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
@@ -36,7 +34,6 @@ export function SecaoSobre() {
             </div>
           </motion.div>
 
-          {/* Content */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}

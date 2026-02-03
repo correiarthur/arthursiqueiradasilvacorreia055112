@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowRight, Heart, Shield, Calendar } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 
@@ -10,7 +10,6 @@ export function SecaoHero() {
     <section className="py-16 pt-32 flex items-center justify-center px-4 select-none cursor-default">
       <div className="container mx-auto">
         <div className="flex flex-col lg:flex-row items-center gap-12">
-          {/* Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -63,7 +62,6 @@ export function SecaoHero() {
             </motion.div>
           </motion.div>
 
-          {/* Visual Cards */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
