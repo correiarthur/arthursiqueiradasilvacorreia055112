@@ -3,7 +3,7 @@ import { tutorService } from '../services/tutorService';
 import { ProprietarioResponseDto } from '../types';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, UserStar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useDebounce } from '../hooks/useDebounce';
 import Paginacao from '../components/Paginacao';
@@ -47,7 +47,7 @@ const PaginaListaTutores = () => {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-display font-bold text-primary">Tutores</h1>
+                    <h1 className="text-3xl font-display font-bold text-primary flex items-center gap-2"><UserStar />Tutores</h1>
                     <p className="text-muted-foreground">Gerencie os proprietários de pets cadastrados.</p>
                 </div>
 

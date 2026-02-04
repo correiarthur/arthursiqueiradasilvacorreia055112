@@ -1,6 +1,13 @@
 import React from 'react';
-import { Button } from './ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from './ui/pagination';
 
 interface PropriedadesPaginacao {
     pagina: number;
@@ -9,29 +16,91 @@ interface PropriedadesPaginacao {
 }
 
 const Paginacao: React.FC<PropriedadesPaginacao> = ({ pagina, totalPaginas, aoMudarPagina }) => {
+    const gerarNumerosPaginas = () => {
+        const paginas = [];
+        const maximoVisivel = 5;
+
+        if (totalPaginas <= maximoVisivel) {
+            for (let i = 0; i < totalPaginas; i++) {
+                paginas.push(i);
+            }
+        } else {
+            // Sempre mostra a primeira página
+            paginas.push(0);
+
+            if (pagina > 2) {
+                paginas.push('reticencias-inicio');
+            }
+
+            const inicio = Math.max(1, pagina - 1);
+            const fim = Math.min(totalPaginas - 2, pagina + 1);
+
+            for (let i = inicio; i <= fim; i++) {
+                if (!paginas.includes(i)) {
+                    paginas.push(i);
+                }
+            }
+
+            if (pagina < totalPaginas - 3) {
+                paginas.push('reticencias-fim');
+            }
+
+            // Sempre mostra a última página
+            if (!paginas.includes(totalPaginas - 1)) {
+                paginas.push(totalPaginas - 1);
+            }
+        }
+        return paginas;
+    };
+
+    if (totalPaginas <= 1) return null;
 
     return (
-        <div className="flex items-center justify-center gap-2 mt-8">
-            <Button
-                variant="outline"
-                size="icon"
-                onClick={() => aoMudarPagina(pagina - 1)}
-                disabled={pagina <= 0}
-            >
-                <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <span className="text-sm font-medium text-foreground">
-                Página {pagina + 1} de {totalPaginas || 1}
-            </span>
-            <Button
-                variant="outline"
-                size="icon"
-                onClick={() => aoMudarPagina(pagina + 1)}
-                disabled={pagina >= totalPaginas - 1}
-            >
-                <ChevronRight className="h-4 w-4" />
-            </Button>
-        </div>
+        <Pagination>
+            <PaginationContent>
+                <PaginationItem>
+                    <PaginationPrevious
+                        href="#"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            if (pagina > 0) aoMudarPagina(pagina - 1);
+                        }}
+                        className={pagina <= 0 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                </PaginationItem>
+
+                {gerarNumerosPaginas().map((p, i) => (
+                    <PaginationItem key={i}>
+                        {typeof p === 'number' ? (
+                            <PaginationLink
+                                href="#"
+                                isActive={p === pagina}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    aoMudarPagina(p);
+                                }}
+                                className="cursor-pointer"
+                            >
+                                {p + 1}
+                            </PaginationLink>
+                        ) : (
+                            <PaginationEllipsis />
+                        )}
+                    </PaginationItem>
+                ))}
+
+                <PaginationItem>
+                    <PaginationNext
+                        href="#"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            if (pagina < totalPaginas - 1) aoMudarPagina(pagina + 1);
+                        }}
+                        className={pagina >= totalPaginas - 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                </PaginationItem>
+            </PaginationContent>
+        </Pagination>
     );
 };
 

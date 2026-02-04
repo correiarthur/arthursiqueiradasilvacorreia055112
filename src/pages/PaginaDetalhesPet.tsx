@@ -3,15 +3,26 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { petService } from '../services/petService';
 import { PetResponseCompletoDto } from '../types';
 import { Button } from '../components/ui/button';
-import { ArrowLeft, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import CartaoTutor from '../components/CartaoTutor';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '../components/ui/dialog';
 
 const PaginaDetalhesPet = () => {
     const { id } = useParams<{ id: string }>();
     const navegar = useNavigate();
     const [pet, setPet] = useState<PetResponseCompletoDto | null>(null);
     const [carregando, setCarregando] = useState(true);
+    const [exclusaoAberta, setExclusaoAberta] = useState(false);
+    const [excluindo, setExcluindo] = useState(false);
 
     useEffect(() => {
         if (!id) return;
@@ -32,7 +43,8 @@ const PaginaDetalhesPet = () => {
     }, [id, navegar]);
 
     const confirmarExclusao = async () => {
-        if (!id || !window.confirm(`Tem certeza que deseja excluir o(a) ${pet?.nome}?`)) return;
+        if (!id) return;
+        setExcluindo(true);
 
         try {
             await petService.delete(Number(id));
@@ -40,6 +52,9 @@ const PaginaDetalhesPet = () => {
             navegar('/pets');
         } catch (erro) {
             toast.error("Erro ao tentar excluir o pet.");
+            setExclusaoAberta(false);
+        } finally {
+            setExcluindo(false);
         }
     };
 
@@ -79,9 +94,31 @@ const PaginaDetalhesPet = () => {
                     <Button variant="secondary" size="icon" asChild className="shadow-lg backdrop-blur-md bg-white/80">
                         <Link to={`/pets/${pet.id}/editar`}><Edit className="h-5 w-5" /></Link>
                     </Button>
-                    <Button variant="destructive" size="icon" onClick={confirmarExclusao} className="shadow-lg">
-                        <Trash2 className="h-5 w-5" />
-                    </Button>
+                    <Dialog open={exclusaoAberta} onOpenChange={setExclusaoAberta}>
+                        <DialogTrigger asChild>
+                            <Button variant="destructive" size="icon" className="shadow-lg">
+                                <Trash2 className="h-5 w-5" />
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle className="flex items-center gap-2 text-destructive">
+                                    <AlertTriangle className="h-5 w-5" /> Confirmar Exclusão
+                                </DialogTitle>
+                                <DialogDescription>
+                                    Tem certeza que deseja remover <strong>{pet.nome}</strong> permanentemente do sistema? Esta ação não poderá ser desfeita.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter className="gap-2 sm:gap-0">
+                                <Button variant="outline" onClick={() => setExclusaoAberta(false)}>
+                                    Cancelar
+                                </Button>
+                                <Button variant="destructive" onClick={confirmarExclusao} disabled={excluindo}>
+                                    {excluindo ? 'Excluindo...' : 'Sim, Excluir Pet'}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </div>
 
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-10 text-white">

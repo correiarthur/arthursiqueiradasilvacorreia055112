@@ -3,7 +3,7 @@ import { petService } from '../services/petService';
 import { PetResponseDto } from '../types';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
-import { Plus, Search } from 'lucide-react';
+import { PawPrint, Plus, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useDebounce } from '../hooks/useDebounce';
 import Paginacao from '../components/Paginacao';
@@ -42,7 +42,7 @@ const PaginaListaPets = () => {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-display font-bold text-primary">🐾 Pets Disponíveis</h1>
+                    <h1 className="text-3xl font-display font-bold text-primary flex items-center gap-2"><PawPrint /> Pets</h1>
                     <p className="text-muted-foreground">Gerencie ou encontre um novo melhor amigo.</p>
                 </div>
 
