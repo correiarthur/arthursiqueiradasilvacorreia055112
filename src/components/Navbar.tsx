@@ -21,7 +21,7 @@ const Navbar = () => {
     if (!isAuthenticated && location.pathname === '/login') return null;
 
     return (
-        <nav className="p-4 flex items-center justify-between max-w-7xl mx-auto">
+        <nav className="sticky top-0 z-50 bg-white/40 backdrop-blur border-b border-gray-100 p-4 flex items-center justify-between ">
             <div className="flex items-center gap-2">
                 <Link to="/" className="text-2xl font-display font-bold text-primary">
                     Amigo<span className="text-secondary">Fiel</span>
