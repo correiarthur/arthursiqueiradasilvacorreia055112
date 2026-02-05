@@ -30,6 +30,7 @@ export interface PetResponseDto {
     raca?: string;
     idade?: number;
     foto?: AnexoResponseDto;
+    tutores?: ProprietarioResponseDto[];
 }
 
 export interface PetResponseCompletoDto extends PetResponseDto {
