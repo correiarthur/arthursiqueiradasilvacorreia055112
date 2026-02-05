@@ -163,7 +163,7 @@ const PaginaDetalhesPet = () => {
                     {pet.tutores && pet.tutores.length > 0 ? (
                         <div className="flex flex-col gap-4">
                             {pet.tutores.map(tutor => (
-                                <CartaoTutor key={tutor.id} tutor={tutor} />
+                                <CartaoTutor key={tutor.id} tutor={tutor} podeExcluir={false} />
                             ))}
                         </div>
                     ) : (

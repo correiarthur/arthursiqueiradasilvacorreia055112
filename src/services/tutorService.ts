@@ -25,9 +25,12 @@ export const tutorService = {
     },
 
     update: async (id: number, data: ProprietarioRequestDto): Promise<ProprietarioResponseDto> => {
-        // Assuming PUT exists as per prompt text
         const response = await api.put<ProprietarioResponseDto>(`/v1/tutores/${id}`, data);
         return response.data;
+    },
+
+    delete: async (id: number): Promise<void> => {
+        await api.delete(`/v1/tutores/${id}`);
     },
 
     uploadPhoto: async (id: number, file: File): Promise<AnexoResponseDto> => {

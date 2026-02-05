@@ -68,6 +68,20 @@ class TutorFacade {
         }
     }
 
+    async removerTutor(id: number) {
+        this.loadingSubject.next(true);
+        try {
+            await tutorService.delete(id);
+            // Recarrega a página atual para refletir a exclusão
+            await this.carregarTutores(this.paginationSubject.value.page);
+        } catch (error) {
+            console.error('Erro ao remover tutor:', error);
+            throw error;
+        } finally {
+            this.loadingSubject.next(false);
+        }
+    }
+
     async buscarPorId(id: number) {
         return await tutorService.getById(id);
     }
