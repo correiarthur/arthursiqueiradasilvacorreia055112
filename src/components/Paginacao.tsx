@@ -25,7 +25,6 @@ const Paginacao: React.FC<PropriedadesPaginacao> = ({ pagina, totalPaginas, aoMu
                 paginas.push(i);
             }
         } else {
-            // Sempre mostra a primeira página
             paginas.push(0);
 
             if (pagina > 2) {
@@ -45,7 +44,6 @@ const Paginacao: React.FC<PropriedadesPaginacao> = ({ pagina, totalPaginas, aoMu
                 paginas.push('reticencias-fim');
             }
 
-            // Sempre mostra a última página
             if (!paginas.includes(totalPaginas - 1)) {
                 paginas.push(totalPaginas - 1);
             }
@@ -56,7 +54,7 @@ const Paginacao: React.FC<PropriedadesPaginacao> = ({ pagina, totalPaginas, aoMu
     if (totalPaginas <= 1) return null;
 
     return (
-        <Pagination>
+        <Pagination className="mx-0 justify-start">
             <PaginationContent>
                 <PaginationItem>
                     <PaginationPrevious
