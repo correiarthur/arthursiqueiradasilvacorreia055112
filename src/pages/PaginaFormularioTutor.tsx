@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { tutorService } from '../services/tutorService';
-import { petService } from '../services/petService';
+import { tutorFacade } from '../facades/TutorFacade';
+import { petFacade } from '../facades/PetFacade';
+import { useObservable } from '../hooks/useObservable';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Card, CardContent, CardFooter } from '../components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
-import { PetResponseDto } from '../types';
 import { validadorCPF } from '../lib/utils';
 import Paginacao from '../components/Paginacao';
 import CartaoVincularPet from '../components/CartaoVincularPet';
 import ModalCriarPet from '../components/ModalCriarPet';
 import { useDebounce } from '@/hooks/useDebounce';
-import { Search } from 'lucide-react';
+import { Search, Star, PawPrint } from 'lucide-react';
+import { PetResponseDto } from '../types';
 
 interface DadosFormularioTutor {
     nome: string;
@@ -32,21 +33,28 @@ const PaginaFormularioTutor = () => {
     const [etapa, setEtapa] = useState(1);
     const [idDoTutor, setIdDoTutor] = useState<number | null>(null);
 
-    const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<DadosFormularioTutor>();
+    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<DadosFormularioTutor>();
     const [foto, setFoto] = useState<File | null>(null);
-    const [carregandoForm, setCarregandoForm] = useState(false);
+    const [fotoErro, setFotoErro] = useState<string | null>(null);
+    const [carregandoInterno, setCarregandoInterno] = useState(false);
 
-    const [petsDisponiveis, setPetsDisponiveis] = useState<PetResponseDto[]>([]);
-    const [idsPetsVinculados, setIdsPetsVinculados] = useState<Set<number>>(new Set());
-    const [pagina, setPagina] = useState(0);
-    const [totalDePaginas, setTotalDePaginas] = useState(0);
-    const [carregandoPets, setCarregandoPets] = useState(false);
+    // Facade State (Catalog)
+    const petsCatalogo = useObservable(petFacade.pets$, []);
+    const carregandoCatalogo = useObservable(petFacade.loading$, false);
+    const { page: pagina, totalPages: totalDePaginas, total } = useObservable(petFacade.pagination$, { page: 0, totalPages: 0, total: 0 });
+
+    // Local State (Linked Pets)
+    const [petsDoTutor, setPetsDoTutor] = useState<PetResponseDto[]>([]);
     const [idPetEmVinculo, setIdPetEmVinculo] = useState<number | null>(null);
-    const [ordenarVinculados, setOrdenarVinculados] = useState(true);
 
+    const [nomeParaBusca, setNomeParaBusca] = useState('');
+    const nomeComDebounce = useDebounce(nomeParaBusca, 500);
+    const [paginaLocal, setPaginaLocal] = useState(0);
+
+    // Initial Load
     useEffect(() => {
         if (ehModoEdicao) {
-            tutorService.getById(Number(id)).then((dados: any) => {
+            tutorFacade.buscarPorId(Number(id)).then((dados: any) => {
                 reset({
                     nome: dados.nome,
                     email: dados.email,
@@ -55,73 +63,72 @@ const PaginaFormularioTutor = () => {
                     cpf: String(dados.cpf)
                 });
                 setIdDoTutor(dados.id);
-                if (dados.pets) {
-                    setIdsPetsVinculados(new Set(dados.pets.map((p: any) => p.id)));
-                }
+                if (dados.pets) setPetsDoTutor(dados.pets);
             });
         }
     }, [id, ehModoEdicao, reset]);
 
-    const [nomeParaBusca, setNomeParaBusca] = useState('');
-    const nomeComDebounce = useDebounce(nomeParaBusca, 500);
-
+    // Fetch Catalog
     useEffect(() => {
         if (etapa === 2) {
-            buscarPetsParaVinculo(0);
+            petFacade.carregarPets(paginaLocal, 10, nomeComDebounce);
         }
-    }, [nomeComDebounce]);
+    }, [etapa, paginaLocal, nomeComDebounce]);
 
-    const buscarPetsParaVinculo = async (indicePagina: number) => {
-        setCarregandoPets(true);
-        try {
-            const dados = await petService.getAll(indicePagina, 10, nomeComDebounce);
-            setPetsDisponiveis(dados.content);
-            setTotalDePaginas(dados.pageCount);
-            setPagina(indicePagina);
-        } catch (erro) {
-            toast.error("Erro ao carregar lista de pets.");
-        } finally {
-            setCarregandoPets(false);
+    const validarArquivo = (arquivo: File | null) => {
+        setFotoErro(null);
+        if (!arquivo) return true;
+
+        const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!tiposPermitidos.includes(arquivo.type)) {
+            setFotoErro("Apenas formatos JPG e PNG são permitidos.");
+            return false;
         }
+
+        const cincoMega = 5 * 1024 * 1024;
+        if (arquivo.size > cincoMega) {
+            setFotoErro("O arquivo deve ter no máximo 5MB.");
+            return false;
+        }
+
+        return true;
     };
 
     const lidarComEtapa1 = async (dados: DadosFormularioTutor) => {
-        setCarregandoForm(true);
+        if (fotoErro) {
+            toast.error("Corrija os erros no formulário antes de avançar.");
+            return;
+        }
+
+        setCarregandoInterno(true);
         try {
             const payload = { ...dados, cpf: Number(dados.cpf.replace(/\D/g, '')) };
-            let idTutorAtual = idDoTutor;
+            let tutorResult;
 
-            if (ehModoEdicao && idTutorAtual) {
-                await tutorService.update(idTutorAtual, payload);
+            if (ehModoEdicao && idDoTutor) {
+                tutorResult = await tutorFacade.atualizarTutor(idDoTutor, payload as any, foto || undefined);
                 toast.success("Dados básicos atualizados!");
             } else {
-                const novoTutor = await tutorService.create(payload);
-                idTutorAtual = novoTutor.id;
-                setIdDoTutor(novoTutor.id);
+                tutorResult = await tutorFacade.criarTutor(payload as any, foto || undefined);
+                setIdDoTutor(tutorResult.id);
                 toast.success("Tutor cadastrado com sucesso!");
             }
 
-            if (foto && idTutorAtual) {
-                await tutorService.uploadPhoto(idTutorAtual, foto);
-            }
-
-            //Avança para o passo de vincular pets
             setEtapa(2);
-            buscarPetsParaVinculo(0);
         } catch (erro) {
             toast.error("Erro ao salvar informações do tutor.");
         } finally {
-            setCarregandoForm(false);
+            setCarregandoInterno(false);
         }
     };
 
-    const vincularPetAoTutor = async (idDoPet: number) => {
+    const vincularPetAoTutor = async (pet: PetResponseDto) => {
         if (!idDoTutor) return;
-        setIdPetEmVinculo(idDoPet);
+        setIdPetEmVinculo(pet.id);
         try {
-            await tutorService.linkPet(idDoTutor, idDoPet);
-            setIdsPetsVinculados(prev => new Set(prev).add(idDoPet));
-            toast.success("Pet vinculado com sucesso!");
+            await tutorFacade.vincularPet(idDoTutor, pet.id);
+            setPetsDoTutor(prev => [pet, ...prev]); // Adiciona ao início dos vinculados
+            toast.success("Pet vinculado!");
         } catch (erro) {
             toast.error("Erro ao vincular pet.");
         } finally {
@@ -129,17 +136,13 @@ const PaginaFormularioTutor = () => {
         }
     };
 
-    const desvincularPetAoTutor = async (idDoPet: number) => {
+    const desvincularPetAoTutor = async (petId: number) => {
         if (!idDoTutor) return;
-        setIdPetEmVinculo(idDoPet);
+        setIdPetEmVinculo(petId);
         try {
-            await tutorService.unlinkPet(idDoTutor, idDoPet);
-            setIdsPetsVinculados(prev => {
-                const novoSet = new Set(prev);
-                novoSet.delete(idDoPet);
-                return novoSet;
-            });
-            toast.success("Pet desvinculado com sucesso!");
+            await tutorFacade.desvincularPet(idDoTutor, petId);
+            setPetsDoTutor(prev => prev.filter(p => p.id !== petId));
+            toast.success("Vínculo removido.");
         } catch (erro) {
             toast.error("Erro ao desvincular pet.");
         } finally {
@@ -152,18 +155,27 @@ const PaginaFormularioTutor = () => {
         navegar('/tutores');
     };
 
+    // Filter catalog to hide pets already linked to THIS tutor OR owned by OTHERS
+    const idsVinculados = new Set(petsDoTutor.map(p => p.id));
+
+    // Pets que serão mostrados no catálogo: não vinculados aqui e sem outros donos
+    const catalogoFiltrado = petsCatalogo.filter(pet => {
+        const jaEstaAqui = idsVinculados.has(pet.id);
+        const temOutroDono = pet.tutores && pet.tutores.length > 0 && !jaEstaAqui;
+        return !jaEstaAqui && !temOutroDono;
+    });
+
     if (etapa === 1) {
         return (
-            <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in duration-500">
-                <header>
-                    <h1 className="text-3xl font-display font-bold text-primary">
-                        {ehModoEdicao ? 'Editar Tutor' : 'Novo Tutor'}
-                    </h1>
-                    <p className="text-muted-foreground text-sm">Informações de contato e endereço.</p>
-                </header>
-
+            <div className="max-w-2xl mx-auto animate-in fade-in duration-500">
                 <Card className="border-secondary/50 shadow-lg">
                     <form onSubmit={handleSubmit(lidarComEtapa1)}>
+                        <CardHeader className="border-b">
+                            <CardTitle className="text-3xl font-display font-bold text-primary">
+                                {ehModoEdicao ? 'Editar Tutor' : 'Novo Tutor'}
+                            </CardTitle>
+                            <p className="text-muted-foreground text-sm">Informações de contato e endereço.</p>
+                        </CardHeader>
                         <CardContent className="space-y-4 pt-6">
                             <div className="space-y-2">
                                 <Label htmlFor="nome" className="text-sm">Nome Completo</Label>
@@ -193,7 +205,6 @@ const PaginaFormularioTutor = () => {
                                                 let value = e.target.value.replace(/\D/g, '');
                                                 if (value.length > 11) value = value.slice(0, 11);
 
-                                                // Máscara
                                                 if (value.length > 9) value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
                                                 else if (value.length > 6) value = value.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
                                                 else if (value.length > 3) value = value.replace(/(\d{3})(\d{1,3})/, '$1.$2');
@@ -254,9 +265,18 @@ const PaginaFormularioTutor = () => {
                                     <Input
                                         id="foto"
                                         type="file"
-                                        accept="image/*"
-                                        onChange={(e) => setFoto(e.target.files?.[0] || null)}
+                                        accept=".jpg,.jpeg,.png"
+                                        className={fotoErro ? "border-destructive" : ""}
+                                        onChange={(e) => {
+                                            const arquivo = e.target.files?.[0] || null;
+                                            if (validarArquivo(arquivo)) {
+                                                setFoto(arquivo);
+                                            } else {
+                                                setFoto(null);
+                                            }
+                                        }}
                                     />
+                                    {fotoErro && <span className="text-xs text-destructive">{fotoErro}</span>}
                                 </div>
                             </div>
 
@@ -269,8 +289,8 @@ const PaginaFormularioTutor = () => {
 
                         <CardFooter className="justify-end gap-2 bg-muted/30 py-4 border-t">
                             <Button type="button" variant="ghost" onClick={() => navegar('/tutores')}>Cancelar</Button>
-                            <Button type="submit" disabled={carregandoForm} className="font-bold min-w-[120px]">
-                                {carregandoForm ? 'Salvando...' : 'Avançar'}
+                            <Button type="submit" disabled={carregandoInterno || !!fotoErro} className="font-bold min-w-[120px]">
+                                {carregandoInterno ? 'Salvando...' : 'Avançar'}
                             </Button>
                         </CardFooter>
                     </form>
@@ -281,88 +301,123 @@ const PaginaFormularioTutor = () => {
 
     //ETAPA 2: Vínculo de Pets
     return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-right-10 duration-500">
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-display font-bold text-primary">Vincular Pets</h1>
-                    <p className="text-muted-foreground">O tutor foi salvo! Agora, selecione os pets dele.</p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3">
-                    <Button
-                        variant={ordenarVinculados ? "secondary" : "outline"}
-                        onClick={() => setOrdenarVinculados(!ordenarVinculados)}
-                        className={`font-semibold h-10 ${ordenarVinculados ? 'bg-primary/20 text-primary border-primary/20 hover:bg-primary/30' : ''}`}
-                    >
-                        {ordenarVinculados ? '★ Vinculados' : 'Filtrar Vinculados'}
-                    </Button>
-
-                    <div className="relative group">
-                        <Input
-                            placeholder="Buscar pet pelo nome..."
-                            value={nomeParaBusca}
-                            onChange={(e) => setNomeParaBusca(e.target.value)}
-                            className="w-full md:w-[250px] pl-10 h-10"
-                        />
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+        <div className="w-full animate-in fade-in slide-in-from-right-10 duration-500">
+            <Card className="border-border shadow-md">
+                <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b">
+                    <div>
+                        <CardTitle className="text-3xl font-display font-bold text-primary">Gerenciar Pets</CardTitle>
+                        <p className="text-muted-foreground">Vincule ou remova os pets associados a este tutor.</p>
                     </div>
 
-                    {idDoTutor && (
-                        <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
+                        {idDoTutor && (
                             <ModalCriarPet
                                 idDoTutor={idDoTutor}
-                                aoCriarPet={(idNovoPet) => {
-                                    setIdsPetsVinculados(prev => new Set(prev).add(idNovoPet));
-                                    buscarPetsParaVinculo(pagina);
+                                aoCriarPet={() => {
+                                    // Re-feth tutor to get the new pet in 'Meus Pets'
+                                    tutorFacade.buscarPorId(idDoTutor).then((dados: any) => {
+                                        if (dados.pets) setPetsDoTutor(dados.pets);
+                                    });
                                 }}
                             />
-                            <Button
-                                variant="outline"
-                                onClick={finalizarProcesso}
-                                className="font-bold border-primary text-primary hover:bg-primary/5 h-10"
-                            >
-                                Concluir
-                            </Button>
+                        )}
+                        <Button onClick={finalizarProcesso} className="font-bold shadow-lg shadow-primary/20">
+                            Finalizar e Salvar
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent className="p-8 space-y-12">
+                    {/* SEÇÃO 1: PETS JÁ VINCULADOS */}
+                    <section className="space-y-6">
+                        <div className="flex items-center gap-3 text-primary border-b pb-3">
+                            <Star className="h-6 w-6 fill-primary" />
+                            <h2 className="text-2xl font-bold font-display">Pets do Tutor ({petsDoTutor.length})</h2>
                         </div>
-                    )}
-                </div>
-            </header>
 
-            {carregandoPets ? (
-                <div className="p-20 text-center animate-pulse">Carregando catálogo de pets...</div>
-            ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {[...petsDisponiveis].sort((a, b) => {
-                        if (!ordenarVinculados) return 0;
-                        const aVinculado = idsPetsVinculados.has(a.id);
-                        const bVinculado = idsPetsVinculados.has(b.id);
-                        if (aVinculado && !bVinculado) return -1;
-                        if (!aVinculado && bVinculado) return 1;
-                        return 0;
-                    }).map(pet => (
-                        <CartaoVincularPet
-                            key={pet.id}
-                            pet={pet}
-                            estaVinculado={idsPetsVinculados.has(pet.id)}
-                            aoVincular={vincularPetAoTutor}
-                            aoDesvincular={desvincularPetAoTutor}
-                            carregando={idPetEmVinculo === pet.id}
-                        />
-                    ))}
-                </div>
-            )}
+                        {petsDoTutor.length > 0 ? (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                                {petsDoTutor.map(pet => (
+                                    <CartaoVincularPet
+                                        key={`vinculado-${pet.id}`}
+                                        pet={pet}
+                                        estaVinculado={true}
+                                        aoVincular={() => { }}
+                                        aoDesvincular={() => desvincularPetAoTutor(pet.id)}
+                                        carregando={idPetEmVinculo === pet.id}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="p-12 text-center border-2 border-dashed rounded-3xl bg-muted/5">
+                                <PawPrint className="h-12 w-12 text-muted-foreground/20 mx-auto mb-4" />
+                                <p className="text-muted-foreground font-medium">Nenhum pet vinculado ainda.</p>
+                                <p className="text-xs text-muted-foreground/60">Use a busca abaixo para encontrar pets para este tutor.</p>
+                            </div>
+                        )}
+                    </section>
 
-            {totalDePaginas > 1 && (
-                <div className="pt-6 border-t">
-                    <Paginacao
-                        pagina={pagina}
-                        totalPaginas={totalDePaginas}
-                        aoMudarPagina={buscarPetsParaVinculo}
-                    />
-                </div>
-            )}
+                    {/* SEÇÃO 2: CATÁLOGO DE DISPONÍVEIS */}
+                    <section className="space-y-8">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-4 border-b">
+                            <div className="flex items-center gap-3 text-primary">
+                                <Search className="h-6 w-6" />
+                                <h2 className="text-2xl font-bold font-display">Catálogo Geral</h2>
+                            </div>
+
+                            <div className="relative group">
+                                <Input
+                                    placeholder="Procurar por nome no catálogo..."
+                                    value={nomeParaBusca}
+                                    onChange={(e) => setNomeParaBusca(e.target.value)}
+                                    className="w-full md:w-[400px] pl-12 h-12 text-base"
+                                />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                            </div>
+                        </div>
+
+                        {carregandoCatalogo ? (
+                            <div className="py-20 flex flex-col items-center justify-center gap-4">
+                                <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                                <p className="text-primary font-bold animate-pulse">Consultando catálogo...</p>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                                    {catalogoFiltrado.map(pet => (
+                                        <CartaoVincularPet
+                                            key={`catalogo-${pet.id}`}
+                                            pet={pet}
+                                            estaVinculado={false}
+                                            aoVincular={() => vincularPetAoTutor(pet)}
+                                            aoDesvincular={() => { }}
+                                            carregando={idPetEmVinculo === pet.id}
+                                        />
+                                    ))}
+                                </div>
+
+                                {catalogoFiltrado.length === 0 && !carregandoCatalogo && (
+                                    <div className="text-center py-16 bg-muted/5 rounded-3xl border border-dashed">
+                                        <p className="text-muted-foreground font-medium">Nenhum pet disponível encontrado com este nome.</p>
+                                    </div>
+                                )}
+
+                                {totalDePaginas > 1 && (
+                                    <div className="pt-10 flex justify-center">
+                                        <Paginacao
+                                            pagina={paginaLocal}
+                                            totalPaginas={totalDePaginas}
+                                            aoMudarPagina={setPaginaLocal}
+                                        />
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </section>
+                </CardContent>
+            </Card>
         </div>
     );
 };
 
 export default PaginaFormularioTutor;
+
