@@ -54,7 +54,7 @@ const PaginaLogin = () => {
                             <Label className='text-xs font-bold uppercase tracking-wider text-slate-500' htmlFor="usuario">Usuário</Label>
                             <Input
                                 id="usuario"
-                                placeholder="usuario"
+                                autoFocus
                                 {...register('usuario', { required: 'O nome de usuário é obrigatório' })}
                                 className={errors.usuario ? "border-destructive h-11" : "h-11 border-slate-200 focus:border-primary focus:ring-primary"}
                             />
@@ -68,7 +68,6 @@ const PaginaLogin = () => {
                             <Input
                                 id="senha"
                                 type="password"
-                                placeholder="••••••••"
                                 {...register('senha', { required: 'A senha é obrigatória' })}
                                 className={errors.senha ? "border-destructive h-11" : "h-11 border-slate-200 focus:border-primary focus:ring-primary"}
                             />
