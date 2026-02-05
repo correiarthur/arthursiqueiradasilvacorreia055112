@@ -1,45 +1,52 @@
-@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@100..900&family=Lexend:wght@100..900&display=swap');
 
+@import 'tailwindcss';
 @plugin 'tailwindcss-animate';
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffdea9;
-  --foreground: #843523;
+  /* Governmental Blue Palette */
+  --background: #f1f5f9;
+  --foreground: #0f172a;
+
   --card: #ffffff;
-  --card-foreground: #843523;
+  --card-foreground: #0f172a;
+
   --popover: #ffffff;
-  --popover-foreground: #843523;
-  --primary: #843523;
-  --primary-foreground: #ffdea9;
-  --secondary: #ffa56e;
-  --secondary-foreground: #843523;
-  --muted: #e8d19a;
-  --muted-foreground: #843523;
-  --accent: #ffa56e;
-  --accent-foreground: #843523;
-  --destructive: #dc2626;
+  --popover-foreground: #0f172a;
+
+  --primary: #202f79;
+  --primary-hover: #1a2663;
+  --primary-foreground: #ffffff;
+
+  --secondary: #64748b;
+  --secondary-foreground: #ffffff;
+
+  --muted: #e2e8f0;
+  --muted-foreground: #475569;
+
+  --accent: #f1f5f9;
+  --accent-foreground: #202f79;
+
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e8d19a;
-  --input: #e8d19a;
-  --ring: #843523;
-  --detalhes: #e8d19a;
-  --radius: 0.75rem;
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+
+  --border: #cbd5e1;
+  --input: #ffffff;
+  --ring: #202f79;
+
+  --radius: 0.5rem;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #202f79;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #202f79;
+  --sidebar-border: #cbd5e1;
+  --sidebar-ring: #202f79;
 }
 
 .dark {
@@ -78,8 +85,9 @@
 }
 
 @theme inline {
-  --font-sans: 'Lexend', 'Lexend Fallback', sans-serif;
-  --font-serif: 'DM Sans', 'DM Sans Fallback', sans-serif;
+  --font-sans: 'DM Sans', sans-serif;
+  --font-display: 'Lexend', sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -87,6 +95,7 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -99,16 +108,15 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-detalhes: var(--detalhes);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -123,7 +131,33 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-display {
+    @apply font-display text-balance;
+  }
+
+  label,
+  input,
+  textarea,
+  select,
+  .font-sans,
+  p,
+  span,
+  button {
+    @apply font-sans;
+  }
+
+  input::placeholder {
+    @apply font-sans;
   }
 }

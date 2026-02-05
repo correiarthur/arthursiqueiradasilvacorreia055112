@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,100..1000&family=Lexend:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@100..900&family=Lexend:wght@100..900&display=swap');
 
 @import 'tailwindcss';
 @import 'tw-animate-css';
@@ -6,44 +6,45 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Soft Minimalist Palette */
-  --background: #ffdea9;
-  --foreground: #843523;
-  /* Primary color for text usually looks good, or dark brown */
-  --card: #fdfaf5;
-  /* Soft white */
-  --card-foreground: #843523;
-  --popover: #fdfaf5;
-  --popover-foreground: #843523;
-  --primary: #843523;
-  --primary-foreground: #ffdea9;
-  /* Contrast text on primary button */
-  --secondary: #ffa56e;
-  --secondary-foreground: #843523;
-  --muted: #e8d19a;
-  /* Details color */
-  --muted-foreground: #a67c52;
-  /* Darker shade of details */
-  --accent: #e8d19a;
-  --accent-foreground: #843523;
+  /* Governmental Blue Palette */
+  --background: #f1f5f9;
+  --foreground: #0f172a;
+
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+
+  --primary: #202f79;
+  --primary-foreground: #ffffff;
+
+  --secondary: #64748b;
+  --secondary-foreground: #ffffff;
+
+  --muted: #e2e8f0;
+  --muted-foreground: #475569;
+
+  --accent: #f1f5f9;
+  --accent-foreground: #202f79;
+
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #ffa56e;
-  /* Secondary as border? or Details */
-  --input: #fdfaf5;
-  --ring: #843523;
 
-  --radius: 0.625rem;
+  --border: #cbd5e1;
+  --input: #ffffff;
+  --ring: #202f79;
 
-  /* Sidebar omitted for brevity, keeping default or matching */
-  --sidebar: #ffdea9;
-  --sidebar-foreground: #843523;
-  --sidebar-primary: #843523;
-  --sidebar-primary-foreground: #ffdea9;
-  --sidebar-accent: #e8d19a;
-  --sidebar-accent-foreground: #843523;
-  --sidebar-border: #ffa56e;
-  --sidebar-ring: #843523;
+  --radius: 0.5rem;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #202f79;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #202f79;
+  --sidebar-border: #cbd5e1;
+  --sidebar-ring: #202f79;
 }
 
 .dark {
@@ -129,6 +130,18 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-display {
+    @apply font-display text-balance;
+  }
+
+  label, input, textarea, select, .font-sans, p, span, button {
+    @apply font-sans;
+  }
+
+  input::placeholder {
+    @apply font-sans;
   }
 }
