@@ -56,7 +56,7 @@ const PaginaListaPets = () => {
                 <CardContent className="pt-8">
                     {carregando ? (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-                            {[...Array(12)].map((_, i) => (
+                            {[...Array(10)].map((_, i) => (
                                 <div key={i} className="h-[240px] rounded-xl bg-muted/50 animate-pulse border" />
                             ))}
                         </div>

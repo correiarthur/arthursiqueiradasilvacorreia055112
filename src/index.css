@@ -133,12 +133,28 @@
     @apply bg-background text-foreground font-sans;
   }
 
-  h1, h2, h3, h4, h5, h6, .font-display {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-display {
     @apply font-display text-balance;
   }
 
-  label, input, textarea, select, .font-sans, p, span, button {
+  label,
+  input,
+  textarea,
+  select,
+  .font-sans,
+  p,
+  span {
     @apply font-sans;
+  }
+
+  button {
+    @apply font-sans cursor-pointer;
   }
 
   input::placeholder {

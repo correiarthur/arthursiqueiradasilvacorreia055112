@@ -93,7 +93,7 @@ const PaginaDetalhesPet = () => {
                 )}
 
                 <div className="absolute top-6 right-6 flex gap-3">
-                    <Button variant="secondary" size="icon" asChild className="shadow-lg backdrop-blur-md bg-white/80">
+                    <Button variant="secondary" size="icon" asChild className="shadow-lg bg-primary hover:bg-primary-hover/80">
                         <Link to={`/pets/${pet.id}/editar`}><Edit className="h-5 w-5" /></Link>
                     </Button>
                     <Dialog open={exclusaoAberta} onOpenChange={setExclusaoAberta}>

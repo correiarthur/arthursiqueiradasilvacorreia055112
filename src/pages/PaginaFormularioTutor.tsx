@@ -68,6 +68,11 @@ const PaginaFormularioTutor = () => {
         }
     }, [id, ehModoEdicao, reset]);
 
+    // Reset page on search
+    useEffect(() => {
+        setPaginaLocal(0);
+    }, [nomeComDebounce]);
+
     // Fetch Catalog
     useEffect(() => {
         if (etapa === 2) {
@@ -158,12 +163,8 @@ const PaginaFormularioTutor = () => {
     // Filter catalog to hide pets already linked to THIS tutor OR owned by OTHERS
     const idsVinculados = new Set(petsDoTutor.map(p => p.id));
 
-    // Pets que serão mostrados no catálogo: não vinculados aqui e sem outros donos
-    const catalogoFiltrado = petsCatalogo.filter(pet => {
-        const jaEstaAqui = idsVinculados.has(pet.id);
-        const temOutroDono = pet.tutores && pet.tutores.length > 0 && !jaEstaAqui;
-        return !jaEstaAqui && !temOutroDono;
-    });
+    // Pets que serão mostrados no catálogo: utilizamos o catálogo completo para manter a paginação de 10 itens
+    const catalogoParaExibir = petsCatalogo;
 
     if (etapa === 1) {
         return (
@@ -376,38 +377,46 @@ const PaginaFormularioTutor = () => {
                         </div>
 
                         {carregandoCatalogo ? (
-                            <div className="py-20 flex flex-col items-center justify-center gap-4">
-                                <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-                                <p className="text-primary font-bold animate-pulse">Consultando catálogo...</p>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                                {[...Array(10)].map((_, i) => (
+                                    <div key={i} className="h-64 rounded-xl bg-muted/50 animate-pulse border" />
+                                ))}
                             </div>
                         ) : (
                             <>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-                                    {catalogoFiltrado.map(pet => (
+                                    {catalogoParaExibir.map(pet => (
                                         <CartaoVincularPet
                                             key={`catalogo-${pet.id}`}
                                             pet={pet}
-                                            estaVinculado={false}
+                                            estaVinculado={idsVinculados.has(pet.id)}
                                             aoVincular={() => vincularPetAoTutor(pet)}
-                                            aoDesvincular={() => { }}
+                                            aoDesvincular={() => desvincularPetAoTutor(pet.id)}
                                             carregando={idPetEmVinculo === pet.id}
                                         />
                                     ))}
                                 </div>
 
-                                {catalogoFiltrado.length === 0 && !carregandoCatalogo && (
+                                {catalogoParaExibir.length === 0 && !carregandoCatalogo && (
                                     <div className="text-center py-16 bg-muted/5 rounded-3xl border border-dashed">
                                         <p className="text-muted-foreground font-medium">Nenhum pet disponível encontrado com este nome.</p>
                                     </div>
                                 )}
 
-                                {totalDePaginas > 1 && (
-                                    <div className="pt-10 flex justify-center">
-                                        <Paginacao
-                                            pagina={paginaLocal}
-                                            totalPaginas={totalDePaginas}
-                                            aoMudarPagina={setPaginaLocal}
-                                        />
+                                {total > 0 && (
+                                    <div className="pt-10 flex items-center justify-between border-t mt-10">
+                                        <div className="flex-1 flex justify-start">
+                                            {totalDePaginas > 1 && (
+                                                <Paginacao
+                                                    pagina={paginaLocal}
+                                                    totalPaginas={totalDePaginas}
+                                                    aoMudarPagina={setPaginaLocal}
+                                                />
+                                            )}
+                                        </div>
+                                        <div className="text-sm font-medium text-muted-foreground bg-muted/30 px-4 py-2 rounded-full border border-border/50">
+                                            Total de <span className="text-primary font-bold">{total}</span> {total === 1 ? 'registro' : 'registros'}
+                                        </div>
                                     </div>
                                 )}
                             </>
