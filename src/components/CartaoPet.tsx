@@ -32,15 +32,15 @@ const CartaoPet: React.FC<PropriedadesCartaoPet> = ({ pet }) => {
                         )}
                     </div>
 
-                    <CardHeader>
-                        <CardTitle className="text-primary group-hover:text-secondary transition-colors truncate">
+                    <CardHeader className="p-4">
+                        <CardTitle className="text-base text-primary group-hover:text-secondary transition-colors truncate">
                             {pet.nome}
                         </CardTitle>
-                        <p className="text-sm text-muted-foreground truncate">{pet.raca}</p>
+                        <p className="text-xs text-muted-foreground truncate">{pet.raca}</p>
                     </CardHeader>
 
-                    <CardContent>
-                        <div className="flex justify-between items-center text-sm font-medium">
+                    <CardContent className="p-4 pt-0">
+                        <div className="flex justify-between items-center text-xs font-medium">
                             <span>
                                 {pet.idade} {pet.idade === 1 ? 'ano' : 'anos'}
                             </span>

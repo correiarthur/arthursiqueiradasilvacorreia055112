@@ -17,43 +17,44 @@ const CartaoTutor: React.FC<PropriedadesCartaoTutor> = ({ tutor }) => {
             transition={{ duration: 0.3 }}
         >
             <Card className="h-full border-border bg-white/50 backdrop-blur-sm hover:border-primary/50 group">
-                <CardHeader className="flex flex-row items-center gap-4">
-                    <div className="h-12 w-12 rounded-full overflow-hidden bg-secondary/20 flex items-center justify-center shrink-0 border border-secondary">
+                <CardHeader className="flex flex-row items-center gap-3 p-4">
+                    <div className="h-10 w-10 rounded-full overflow-hidden bg-secondary/20 flex items-center justify-center shrink-0 border border-secondary">
                         {tutor.foto ? (
-                            <img 
-                                src={tutor.foto.url} 
-                                alt={`Foto de ${tutor.nome}`} 
-                                className="h-full w-full object-cover" 
+                            <img
+                                src={tutor.foto.url}
+                                alt={`Foto de ${tutor.nome}`}
+                                className="h-full w-full object-cover"
                             />
                         ) : (
-                            <span className="text-lg font-display font-bold text-primary">
+                            <span className="text-sm font-display font-bold text-primary">
                                 {tutor.nome.charAt(0).toUpperCase()}
                             </span>
                         )}
                     </div>
-                    
+
                     <div className="overflow-hidden">
-                        <CardTitle className="text-lg text-primary truncate">
+                        <CardTitle className="text-base text-primary truncate leading-tight">
                             {tutor.nome}
                         </CardTitle>
-                        <CardDescription className="truncate">
+                        <CardDescription className="truncate text-xs">
                             {tutor.email}
                         </CardDescription>
                     </div>
                 </CardHeader>
 
-                <CardContent>
-                    <div className="flex items-center text-sm text-foreground/80">
+                <CardContent className="p-4 pt-0">
+                    <div className="flex items-center text-xs text-foreground/80">
                         <span className="mr-2" role="img" aria-label="Telefone">📞</span>
                         {tutor.telefone}
                     </div>
                 </CardContent>
 
-                <CardFooter>
-                    <Button 
-                        asChild 
-                        variant="outline" 
-                        className="w-full text-primary border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors font-bold"
+                <CardFooter className="p-4 pt-0">
+                    <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-primary border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors font-bold text-xs"
                     >
                         <Link to={`/tutores/${tutor.id}`}>Ver Perfil Completo</Link>
                     </Button>
