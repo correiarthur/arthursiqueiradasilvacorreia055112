@@ -16,19 +16,18 @@ interface DadosLogin {
 const PaginaLogin = () => {
     const navegar = useNavigate();
     const [carregando, setCarregando] = useState(false);
-    
-    const { 
-        register, 
-        handleSubmit, 
-        formState: { errors } 
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors }
     } = useForm<DadosLogin>();
 
     const lidarComLogin = async (dados: DadosLogin) => {
         setCarregando(true);
         try {
-            // Chamada ao serviço de autenticação
             await authService.login(dados.usuario, dados.senha);
-            
+
             toast.success("Bem-vindo de volta ao AmigoFiel!");
             navegar('/');
         } catch (erro) {
@@ -46,43 +45,42 @@ const PaginaLogin = () => {
                     <div className="mx-auto bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mb-2">
                         <span className="text-3xl">🐾</span>
                     </div>
-                    <CardTitle className="text-3xl font-display font-bold text-primary">Login</CardTitle>
-                    <p className="text-muted-foreground">Acesse o sistema de gestão AmigoFiel</p>
+                    <CardTitle className="text-2xl font-display font-bold text-primary">Amigo<span className="text-blue-300">Fiel</span></CardTitle>
                 </CardHeader>
 
-                <form onSubmit={handleSubmit(lidarComLogin)}>
-                    <CardContent className="space-y-4">
+                <form onSubmit={handleSubmit(lidarComLogin)} className="pb-8">
+                    <CardContent className="space-y-5 px-8">
                         <div className="space-y-2">
-                            <Label className='text-base' htmlFor="usuario">Usuário</Label>
+                            <Label className='text-xs font-bold uppercase tracking-wider text-slate-500' htmlFor="usuario">Usuário</Label>
                             <Input
                                 id="usuario"
                                 placeholder="admin"
                                 {...register('usuario', { required: 'O nome de usuário é obrigatório' })}
-                                className={errors.usuario ? "border-destructive text-sm" : ""}
+                                className={errors.usuario ? "border-destructive h-11" : "h-11 border-slate-200 focus:border-primary focus:ring-primary"}
                             />
                             {errors.usuario && (
-                                <p className="text-sm text-destructive">{errors.usuario.message}</p>
+                                <p className="text-[10px] font-bold text-destructive uppercase">{errors.usuario.message}</p>
                             )}
                         </div>
 
                         <div className="space-y-2">
-                            <Label className='text-base' htmlFor="senha">Senha</Label>
+                            <Label className='text-xs font-bold uppercase tracking-wider text-slate-500' htmlFor="senha">Senha</Label>
                             <Input
                                 id="senha"
                                 type="password"
-                                placeholder="admin"
+                                placeholder="••••••••"
                                 {...register('senha', { required: 'A senha é obrigatória' })}
-                                className={errors.senha ? "border-destructive" : ""}
+                                className={errors.senha ? "border-destructive h-11" : "h-11 border-slate-200 focus:border-primary focus:ring-primary"}
                             />
                             {errors.senha && (
-                                <p className="text-sm text-destructive">{errors.senha.message}</p>
+                                <p className="text-[10px] font-bold text-destructive uppercase">{errors.senha.message}</p>
                             )}
                         </div>
                     </CardContent>
 
-                    <CardFooter className="flex flex-col space-y-4">
-                        <Button type="submit" className="w-full font-bold text-lg" disabled={carregando}>
-                            {carregando ? 'Autenticando...' : 'Entrar no Sistema'}
+                    <CardFooter className="flex flex-col space-y-6 px-8 mt-4">
+                        <Button type="submit" className="w-full font-black text-sm uppercase tracking-widest bg-primary hover:bg-primary-hover h-12 shadow-lg shadow-blue-900/20" disabled={carregando}>
+                            {carregando ? 'Validando Acesso...' : 'Autenticar'}
                         </Button>
                         <p className="text-sm text-center text-muted-foreground">
                             Esqueceu sua senha? Entre em contato com o administrador.

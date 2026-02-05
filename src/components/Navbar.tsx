@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { Button } from './ui/button';
-import { LogOut } from 'lucide-react';
+import { LogOut, Menu } from 'lucide-react';
 
 const Navbar = () => {
     const location = useLocation();
@@ -21,31 +21,43 @@ const Navbar = () => {
     if (!isAuthenticated && location.pathname === '/login') return null;
 
     return (
-        <nav className="sticky top-0 z-50 bg-white/40 backdrop-blur border-b border-gray-100 p-4 flex items-center justify-between ">
-            <div className="flex items-center gap-2">
-                <Link to="/" className="text-2xl font-display font-bold text-primary">
-                    Amigo<span className="text-secondary">Fiel</span>
-                </Link>
-            </div>
-            {isAuthenticated && (
-                <div className="flex items-center gap-6">
-                    <ul className="flex gap-6 items-center">
-                        {links.map((link) => (
-                            <li key={link.path}>
+        <nav className="sticky top-0 z-50 bg-primary text-white p-4 shadow-md">
+            <div className="max-w-7xl mx-auto flex items-center justify-between relative h-12">
+                <div className="flex items-center z-10">
+                    <Link to="/" className="text-2xl font-display font-bold text-white">
+                        Amigo<span className="text-blue-300">Fiel</span>
+                    </Link>
+                </div>
+
+                {isAuthenticated && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="flex items-center gap-12">
+                            {links.map((link) => (
                                 <Link
+                                    key={link.path}
                                     to={link.path}
-                                    className={`font-sans font-medium transition-colors hover:text-secondary ${location.pathname === link.path ? 'text-primary font-bold' : 'text-primary/70'}`}
+                                    className={`text-xl font-bold transition-all hover:scale-105 ${location.pathname === link.path ? 'text-white border-b-2 border-white' : 'text-white/70 hover:text-white'}`}
                                 >
                                     {link.name}
                                 </Link>
-                            </li>
-                        ))}
-                    </ul>
-                    <Button variant="ghost" size="icon" onClick={handleLogout} title="Sair">
-                        <LogOut className="h-10 w-10 text-primary font-bold" />
-                    </Button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <div className="flex items-center z-10">
+                    {isAuthenticated && (
+                        <Button
+                            variant="outline"
+                            onClick={handleLogout}
+                            className="bg-white/10 border-white/20 text-white hover:bg-white/20 font-bold gap-2"
+                        >
+                            <LogOut className="h-4 w-4" />
+                            <span>Sair</span>
+                        </Button>
+                    )}
                 </div>
-            )}
+            </div>
         </nav>
     );
 };

@@ -71,19 +71,21 @@ const PaginaDetalhesPet = () => {
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <Button variant="ghost" asChild className="mb-4">
-                <Link to="/pets">
+            <Button asChild className="mb-4 font-bold bg-primary hover:bg-primary-hover px-6 h-10 shadow-md">
+                <Link to="/pets" className="flex items-center">
                     <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para a Lista
                 </Link>
             </Button>
 
-            <div className="relative h-64 md:h-[450px] rounded-3xl overflow-hidden shadow-2xl border border-border/20">
+            <div className="relative h-64 md:h-[380px] rounded-3xl overflow-hidden shadow-2xl border border-border/20">
                 {pet.foto ? (
-                    <img
-                        src={pet.foto.url}
-                        alt={`Foto de ${pet.nome}`}
-                        className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-                    />
+                    <div className="w-full h-full bg-slate-50 flex items-center justify-center">
+                        <img
+                            src={pet.foto.url}
+                            alt={`Foto de ${pet.nome}`}
+                            className="max-w-full max-h-full object-contain transition-transform duration-700 hover:scale-105"
+                        />
+                    </div>
                 ) : (
                     <div className="w-full h-full bg-gradient-to-br from-secondary/30 to-primary/10 flex items-center justify-center">
                         <span className="text-8xl">🐾</span>
