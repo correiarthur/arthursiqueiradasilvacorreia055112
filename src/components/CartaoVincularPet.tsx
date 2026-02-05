@@ -1,8 +1,17 @@
 import { PetResponseDto } from '../types';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
 import { Button } from './ui/button';
-import { Check, Trash2 } from 'lucide-react';
+import { Check, Trash2, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from './ui/dialog';
 
 interface PropriedadesCartaoVincularPet {
     pet: PetResponseDto;
@@ -59,16 +68,41 @@ const CartaoVincularPet: React.FC<PropriedadesCartaoVincularPet> = ({
                             <div className="col-span-4 h-11 flex items-center justify-center bg-green-50 text-green-700 rounded-md font-bold border border-green-100 text-sm">
                                 <Check className="mr-2 h-4 w-4" /> Vinculado
                             </div>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => aoDesvincular(pet.id)}
-                                disabled={carregando}
-                                className="h-11 w-full border-destructive/20 text-destructive hover:bg-destructive/10"
-                                title="Desvincular pet"
-                            >
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button
+                                        variant="destructive"
+                                        size="icon"
+                                        disabled={carregando}
+                                        className="h-11 w-full"
+                                        title="Desvincular pet"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle className="flex items-center gap-2 text-destructive">
+                                            <AlertTriangle className="h-5 w-5" /> Confirmar Desvínculo
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            Tem certeza que deseja desvincular o pet <strong>{pet.nome}</strong> deste tutor? O pet permanecerá no catálogo geral.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter className="gap-2 sm:gap-0">
+                                        <DialogTrigger asChild>
+                                            <Button variant="outline">Cancelar</Button>
+                                        </DialogTrigger>
+                                        <Button
+                                            variant="destructive"
+                                            onClick={() => aoDesvincular(pet.id)}
+                                            disabled={carregando}
+                                        >
+                                            {carregando ? 'Removendo...' : 'Sim, Desvincular Pet'}
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
                         </div>
                     ) : (
                         <Button

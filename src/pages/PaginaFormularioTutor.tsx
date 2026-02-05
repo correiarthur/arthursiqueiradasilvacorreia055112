@@ -163,8 +163,8 @@ const PaginaFormularioTutor = () => {
     // Filter catalog to hide pets already linked to THIS tutor OR owned by OTHERS
     const idsVinculados = new Set(petsDoTutor.map(p => p.id));
 
-    // Pets que serão mostrados no catálogo: utilizamos o catálogo completo para manter a paginação de 10 itens
-    const catalogoParaExibir = petsCatalogo;
+    // Pets que serão mostrados no catálogo: filtramos para ocultar os que já pertencem a este tutor
+    const catalogoParaExibir = petsCatalogo.filter(pet => !idsVinculados.has(pet.id));
 
     if (etapa === 1) {
         return (
