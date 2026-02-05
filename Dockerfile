@@ -1,5 +1,5 @@
 # Estágio 1: Construção (Build)
-FROM node:18-alpine AS build
+FROM public.ecr.aws/docker/library/node:18-alpine AS build
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY . .
 RUN npm run build
 
 # Estágio 2: Produção (Servidor Web)
-FROM nginx:alpine
+FROM public.ecr.aws/nginx/nginx:alpine
 
 # Copia os arquivos estáticos gerados no estágio de build para o diretório do Nginx
 COPY --from=build /app/dist /usr/share/nginx/html
